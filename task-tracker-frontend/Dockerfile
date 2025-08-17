@@ -9,11 +9,11 @@ RUN npm install
 # Kaynak kodları kopyala
 COPY . .
 
-# Execute permission'ları düzelt
-RUN chmod +x node_modules/.bin/react-scripts || true
+# React-scripts'i global olarak yükle (backup)
+RUN npm install -g react-scripts || true
 
 # Port expose et
 EXPOSE 3000
 
 # Uygulamayı başlat
-CMD ["npm", "start"]
+CMD ["npx", "react-scripts", "start"]
