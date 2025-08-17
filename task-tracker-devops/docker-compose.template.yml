@@ -20,7 +20,7 @@ services:
     image: bakiakgun/task-tracker-frontend:${COMMIT_HASH}
     container_name: task-tracker-frontend
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
       - REACT_APP_API_URL=http://localhost:8000
     restart: unless-stopped
