@@ -9,6 +9,9 @@ RUN npm install
 # Kaynak kodları kopyala
 COPY . .
 
+# Execute permission'ları düzelt
+RUN chmod +x node_modules/.bin/react-scripts || true
+
 # Port expose et
 EXPOSE 3000
 
