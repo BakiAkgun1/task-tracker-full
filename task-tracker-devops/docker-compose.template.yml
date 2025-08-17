@@ -1,0 +1,39 @@
+services:
+  backend:
+    image: bakiakgun/task-tracker-backend:${COMMIT_HASH}
+    container_name: task-tracker-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./myapp/tasks.db:/app/tasks.db
+    environment:
+      - PYTHONPATH=/app
+      - ENVIRONMENT=production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    image: bakiakgun/task-tracker-frontend:${COMMIT_HASH}
+    container_name: task-tracker-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+    restart: unless-stopped
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  default:
+    name: task-tracker-network
+
+#deneme

@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  backend:
+    image: bakiakgun/task-tracker-backend:1.0.0
+    container_name: backend
+    ports:
+      - "8000:8000"
+   
+    volumes:
+      - ./myapp/tasks.db:/app/tasks.db      # Lokal myapp klasörünü container içindeki /app klasörüne bağla
+    restart: unless-stopped
+
+  frontend:
+    image: bakiakgun/task-tracker-frontend:1.0.0
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    depends_on:
+      - backend

@@ -1,0 +1,6 @@
+[submodule "task-tracker-backend"]
+	path = task-tracker-backend
+	url = https://github.com/BakiAkgun1/task-tracker-backend
+[submodule "task-tracker-frontend"]
+	path = task-tracker-frontend
+	url = https://github.com/BakiAkgun1/task-tracker-frontend
