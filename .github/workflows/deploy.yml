@@ -1,0 +1,96 @@
+name: Deploy to Production
+
+on:
+  workflow_run:
+    workflows: ["Build and Push Docker Images"]
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      commit_hash:
+        description: 'Commit hash to deploy'
+        required: true
+        default: 'latest'
+
+env:
+  DOCKER_USER: bakiakgun
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        
+    - name: Get commit hash
+      id: commit
+      run: |
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          if [ "${{ github.event.inputs.commit_hash }}" == "latest" ]; then
+            echo "hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          else
+            echo "hash=${{ github.event.inputs.commit_hash }}" >> $GITHUB_OUTPUT
+          fi
+        else
+          echo "hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Verify images exist
+      run: |
+        echo "Checking if images exist on Docker Hub..."
+        docker pull ${{ env.DOCKER_USER }}/task-tracker-backend:${{ steps.commit.outputs.hash }}
+        docker pull ${{ env.DOCKER_USER }}/task-tracker-frontend:${{ steps.commit.outputs.hash }}
+        echo "✅ Images verified!"
+        
+    - name: Create docker-compose with hash
+      run: |
+        export COMMIT_HASH=${{ steps.commit.outputs.hash }}
+        cd task-tracker-devops
+        envsubst < docker-compose.template.yml > docker-compose.generated.yml
+        cat docker-compose.generated.yml
+        
+    - name: Deploy with Docker Compose
+      run: |
+        cd task-tracker-devops
+        export COMMIT_HASH=${{ steps.commit.outputs.hash }}
+        
+        # Stop existing containers
+        docker-compose -f docker-compose.template.yml down || true
+        
+        # Start new containers
+        docker-compose -f docker-compose.template.yml up -d
+        
+        # Wait for services to be ready
+        sleep 30
+        
+        # Health check
+        echo "Performing health checks..."
+        curl -f http://localhost:8000/health || echo "Backend health check failed"
+        curl -f http://localhost:3000 || echo "Frontend health check failed"
+        
+    - name: Deployment summary
+      run: |
+        echo "## 🎉 Deployment Completed" >> $GITHUB_STEP_SUMMARY
+        echo "- **Environment:** Production" >> $GITHUB_STEP_SUMMARY
+        echo "- **Commit Hash:** \`${{ steps.commit.outputs.hash }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **Backend:** \`${{ env.DOCKER_USER }}/task-tracker-backend:${{ steps.commit.outputs.hash }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **Frontend:** \`${{ env.DOCKER_USER }}/task-tracker-frontend:${{ steps.commit.outputs.hash }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🌐 Access URLs:" >> $GITHUB_STEP_SUMMARY
+        echo "- Frontend: http://localhost:3000" >> $GITHUB_STEP_SUMMARY
+        echo "- Backend API: http://localhost:8000" >> $GITHUB_STEP_SUMMARY
+        echo "- API Docs: http://localhost:8000/docs" >> $GITHUB_STEP_SUMMARY
+        
+    - name: Notify deployment status
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "✅ Deployment successful!"
+        else
+          echo "❌ Deployment failed!"
+          exit 1
+        fi

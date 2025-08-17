@@ -16,6 +16,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
       
     - name: Get commit hash
       id: commit
@@ -50,8 +53,29 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
         
-    - name: Update deployment files
+    - name: Create deployment summary
       run: |
-        echo "COMMIT_HASH=${{ steps.commit.outputs.hash }}" > deployment.env
-        echo "Backend image: ${{ env.DOCKER_USER }}/task-tracker-backend:${{ steps.commit.outputs.hash }}"
-        echo "Frontend image: ${{ env.DOCKER_USER }}/task-tracker-frontend:${{ steps.commit.outputs.hash }}"
+        echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Commit Hash:** \`${{ steps.commit.outputs.hash }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **Backend Image:** \`${{ env.DOCKER_USER }}/task-tracker-backend:${{ steps.commit.outputs.hash }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **Frontend Image:** \`${{ env.DOCKER_USER }}/task-tracker-frontend:${{ steps.commit.outputs.hash }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Deploy Commands:" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`powershell" >> $GITHUB_STEP_SUMMARY
+        echo "\$env:COMMIT_HASH = \"${{ steps.commit.outputs.hash }}\"" >> $GITHUB_STEP_SUMMARY
+        echo "cd task-tracker-devops" >> $GITHUB_STEP_SUMMARY
+        echo "docker-compose -f docker-compose.template.yml up -d" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        
+    - name: Save deployment info
+      run: |
+        mkdir -p deployment
+        echo "COMMIT_HASH=${{ steps.commit.outputs.hash }}" > deployment/latest.env
+        echo "BACKEND_IMAGE=${{ env.DOCKER_USER }}/task-tracker-backend:${{ steps.commit.outputs.hash }}" >> deployment/latest.env
+        echo "FRONTEND_IMAGE=${{ env.DOCKER_USER }}/task-tracker-frontend:${{ steps.commit.outputs.hash }}" >> deployment/latest.env
+        
+    - name: Upload deployment artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: deployment-info-${{ steps.commit.outputs.hash }}
+        path: deployment/
