@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-tracker-backend
+spec:
+  template:
+    spec:
+      containers:
+      - name: backend
+        image: bakiakgun/task-tracker-backend:latest
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-tracker-frontend
+spec:
+  template:
+    spec:
+      containers:
+      - name: frontend
+        image: bakiakgun/task-tracker-frontend:latest

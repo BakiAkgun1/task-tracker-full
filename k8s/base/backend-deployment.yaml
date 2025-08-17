@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-tracker-backend
+  labels:
+    app: task-tracker-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: task-tracker-backend
+  template:
+    metadata:
+      labels:
+        app: task-tracker-backend
+    spec:
+      containers:
+      - name: backend
+        image: bakiakgun/task-tracker-backend:754c552d
+        ports:
+        - containerPort: 8000
+        env:
+        - name: PYTHONPATH
+          value: "/app"
+        - name: ENVIRONMENT
+          value: "production"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: task-tracker-backend-service
+  labels:
+    app: task-tracker-backend
+spec:
+  selector:
+    app: task-tracker-backend
+  ports:
+  - protocol: TCP
+    port: 8000
+    targetPort: 8000
+  type: ClusterIP

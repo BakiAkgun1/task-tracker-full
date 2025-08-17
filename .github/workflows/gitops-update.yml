@@ -1,0 +1,86 @@
+name: GitOps Image Update
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  REGISTRY: docker.io
+  BACKEND_IMAGE_NAME: bakiakgun/task-tracker-backend
+  FRONTEND_IMAGE_NAME: bakiakgun/task-tracker-frontend
+
+jobs:
+  build-and-update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+
+    - name: Get commit hash
+      id: commit
+      run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build and push backend image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./task-tracker-backend
+        push: true
+        tags: |
+          ${{ env.BACKEND_IMAGE_NAME }}:${{ steps.commit.outputs.SHORT_SHA }}
+          ${{ env.BACKEND_IMAGE_NAME }}:latest
+
+    - name: Build and push frontend image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./task-tracker-frontend
+        push: true
+        tags: |
+          ${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.commit.outputs.SHORT_SHA }}
+          ${{ env.FRONTEND_IMAGE_NAME }}:latest
+
+    - name: Update Kubernetes manifests for dev
+      if: github.ref == 'refs/heads/develop'
+      run: |
+        # Dev için latest tag kullan (otomatik sync)
+        sed -i "s|image: ${{ env.BACKEND_IMAGE_NAME }}:.*|image: ${{ env.BACKEND_IMAGE_NAME }}:latest|g" k8s/overlays/dev/image-patch.yaml
+        sed -i "s|image: ${{ env.FRONTEND_IMAGE_NAME }}:.*|image: ${{ env.FRONTEND_IMAGE_NAME }}:latest|g" k8s/overlays/dev/image-patch.yaml
+
+    - name: Update Kubernetes manifests for prod
+      if: github.ref == 'refs/heads/main'
+      run: |
+        # Production için commit hash kullan
+        sed -i "s|image: ${{ env.BACKEND_IMAGE_NAME }}:.*|image: ${{ env.BACKEND_IMAGE_NAME }}:${{ steps.commit.outputs.SHORT_SHA }}|g" k8s/base/backend-deployment.yaml
+        sed -i "s|image: ${{ env.FRONTEND_IMAGE_NAME }}:.*|image: ${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.commit.outputs.SHORT_SHA }}|g" k8s/base/frontend-deployment.yaml
+
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add k8s/
+        git diff --staged --quiet || git commit -m "Update image tags to ${{ steps.commit.outputs.SHORT_SHA }}"
+        git push
+
+    - name: Create deployment summary
+      run: |
+        echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Commit Hash**: ${{ steps.commit.outputs.SHORT_SHA }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Backend Image**: ${{ env.BACKEND_IMAGE_NAME }}:${{ steps.commit.outputs.SHORT_SHA }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Frontend Image**: ${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.commit.outputs.SHORT_SHA }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **ArgoCD will automatically sync the changes**" >> $GITHUB_STEP_SUMMARY
