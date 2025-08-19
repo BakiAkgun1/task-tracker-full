@@ -1,0 +1,97 @@
+name: Update Values and Deploy
+
+on:
+  push:
+    branches: [ main, develop ]
+
+env:
+  REGISTRY: docker.io
+  BACKEND_IMAGE_NAME: bakiakgun/task-tracker-backend
+  FRONTEND_IMAGE_NAME: bakiakgun/task-tracker-frontend
+
+jobs:
+  build-and-update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+
+    - name: Get commit hash
+      id: commit
+      run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build and push backend image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./task-tracker-backend
+        push: true
+        tags: |
+          ${{ env.BACKEND_IMAGE_NAME }}:${{ steps.commit.outputs.SHORT_SHA }}
+          ${{ env.BACKEND_IMAGE_NAME }}:latest
+
+    - name: Build and push frontend image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./task-tracker-frontend
+        push: true
+        tags: |
+          ${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.commit.outputs.SHORT_SHA }}
+          ${{ env.FRONTEND_IMAGE_NAME }}:latest
+
+    - name: Update values.yaml with new image tags
+      run: |
+        echo "Updating values.yaml with commit hash: ${{ steps.commit.outputs.SHORT_SHA }}"
+        
+        # Backend image tag güncelle
+        sed -i 's/tag: "[^"]*"/tag: "${{ steps.commit.outputs.SHORT_SHA }}"/g' helm-chart/values.yaml
+        
+        # Değişiklikleri kontrol et
+        echo "Updated values.yaml content:"
+        cat helm-chart/values.yaml | grep -A 2 -B 2 "tag:"
+
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add helm-chart/values.yaml
+        
+        # Değişiklik var mı kontrol et
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "🚀 Update image tags to ${{ steps.commit.outputs.SHORT_SHA }}
+
+          - Backend: ${{ env.BACKEND_IMAGE_NAME }}:${{ steps.commit.outputs.SHORT_SHA }}
+          - Frontend: ${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.commit.outputs.SHORT_SHA }}
+          
+          Auto-updated by GitHub Actions"
+          git push
+        fi
+
+    - name: Create deployment summary
+      run: |
+        echo "## 🚀 GitOps Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "| Component | Image | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|-----------|--------|---------|" >> $GITHUB_STEP_SUMMARY
+        echo "| **Backend** | \`${{ env.BACKEND_IMAGE_NAME }}:${{ steps.commit.outputs.SHORT_SHA }}\` | ✅ Built & Pushed |" >> $GITHUB_STEP_SUMMARY
+        echo "| **Frontend** | \`${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.commit.outputs.SHORT_SHA }}\` | ✅ Built & Pushed |" >> $GITHUB_STEP_SUMMARY
+        echo "| **Values.yaml** | Updated with new tags | ✅ Committed |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🎯 Next Steps:" >> $GITHUB_STEP_SUMMARY
+        echo "1. ArgoCD will detect the changes automatically" >> $GITHUB_STEP_SUMMARY
+        echo "2. Check ArgoCD UI for sync status" >> $GITHUB_STEP_SUMMARY
+        echo "3. Monitor pods: \`kubectl get pods -n task-tracker-dev\`" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "task-tracker.fullname" . }}-frontend
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "task-tracker.labels" . | nindent 4 }}
+    component: frontend
+spec:
+  replicas: {{ .Values.replicaCount.frontend }}
+  selector:
+    matchLabels:
+      {{- include "task-tracker.selectorLabels" . | nindent 6 }}
+      component: frontend
+  template:
+    metadata:
+      labels:
+        {{- include "task-tracker.selectorLabels" . | nindent 8 }}
+        component: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: "{{ .Values.images.frontend.repository }}:{{ .Values.images.frontend.tag }}"
+        imagePullPolicy: {{ .Values.images.frontend.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.service.frontend.targetPort }}
+          protocol: TCP
+        env:
+        {{- range $key, $value := .Values.env.frontend }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+        {{- if .Values.healthCheck.frontend.enabled }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.healthCheck.frontend.path }}
+            port: http
+          initialDelaySeconds: {{ .Values.healthCheck.frontend.initialDelaySeconds }}
+          periodSeconds: {{ .Values.healthCheck.frontend.periodSeconds }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.healthCheck.frontend.path }}
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        {{- end }}
+        resources:
+          {{- toYaml .Values.resources.frontend | nindent 10 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "task-tracker.fullname" . }}-frontend-service
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "task-tracker.labels" . | nindent 4 }}
+    component: frontend
+spec:
+  type: {{ .Values.service.frontend.type }}
+  ports:
+  - port: {{ .Values.service.frontend.port }}
+    targetPort: {{ .Values.service.frontend.targetPort }}
+    protocol: TCP
+    name: http
+  selector:
+    {{- include "task-tracker.selectorLabels" . | nindent 4 }}
+    component: frontend

@@ -1,0 +1,96 @@
+# Task Tracker Application Configuration
+
+# Image configurations - GitHub Actions tarafından otomatik güncellenir
+images:
+  backend:
+    repository: bakiakgun/task-tracker-backend
+    tag: "754c552d"  # Bu tag GitHub Actions tarafından güncellenecek
+    pullPolicy: IfNotPresent
+  frontend:
+    repository: bakiakgun/task-tracker-frontend
+    tag: "754c552d"  # Bu tag GitHub Actions tarafından güncellenecek
+    pullPolicy: IfNotPresent
+
+# Replica configurations
+replicaCount:
+  backend: 2
+  frontend: 2
+
+# Service configurations
+service:
+  backend:
+    type: ClusterIP
+    port: 8000
+    targetPort: 8000
+  frontend:
+    type: LoadBalancer
+    port: 3000
+    targetPort: 3000
+
+# Resource configurations
+resources:
+  backend:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  frontend:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+# Environment variables
+env:
+  backend:
+    PYTHONPATH: "/app"
+    ENVIRONMENT: "production"
+  frontend:
+    REACT_APP_API_URL: "http://task-tracker-backend-service:8000"
+
+# Health checks
+healthCheck:
+  backend:
+    enabled: true
+    path: "/health"
+    initialDelaySeconds: 30
+    periodSeconds: 10
+  frontend:
+    enabled: true
+    path: "/"
+    initialDelaySeconds: 30
+    periodSeconds: 10
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: task-tracker.local
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: backend
+        - path: /
+          pathType: Prefix
+          service: frontend
+  tls:
+    - secretName: task-tracker-tls
+      hosts:
+        - task-tracker.local
+
+# Namespace
+namespace: task-tracker
+
+# Labels
+labels:
+  app: task-tracker
+  project: task-tracker
+  managed-by: argocd
