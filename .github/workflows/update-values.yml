@@ -1,8 +1,10 @@
-name: Update Values and Deploy
+name: Update Values and Deploy (Disabled)
 
+# Devre dışı - simple-deploy.yml kullanılıyor
 on:
-  push:
-    branches: [ main, develop ]
+  workflow_dispatch:  # Sadece manuel
+  # push:
+  #   branches: [ main, develop ]
 
 env:
   REGISTRY: docker.io

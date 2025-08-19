@@ -1,0 +1,132 @@
+name: Simple Deploy Test
+
+on:
+  workflow_dispatch:  # Manuel çalıştırma
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'README.md'
+      - '*.md'
+
+env:
+  DOCKER_USERNAME: bakiakgun
+  BACKEND_IMAGE: bakiakgun/task-tracker-backend
+  FRONTEND_IMAGE: bakiakgun/task-tracker-frontend
+
+jobs:
+  simple-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Get commit hash
+      id: commit
+      run: |
+        COMMIT_HASH=$(git rev-parse --short HEAD)
+        echo "COMMIT_HASH=${COMMIT_HASH}" >> $GITHUB_OUTPUT
+        echo "🔹 Commit Hash: ${COMMIT_HASH}"
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ env.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Test Docker connection
+      run: |
+        echo "🔹 Testing Docker Hub connection..."
+        docker info
+        echo "🔹 Docker login successful!"
+
+    - name: Build backend image
+      run: |
+        echo "🔹 Building backend image..."
+        cd task-tracker-backend
+        docker build -t ${{ env.BACKEND_IMAGE }}:${{ steps.commit.outputs.COMMIT_HASH }} .
+        docker build -t ${{ env.BACKEND_IMAGE }}:latest .
+        echo "✅ Backend image built successfully"
+
+    - name: Build frontend image
+      run: |
+        echo "🔹 Building frontend image..."
+        cd task-tracker-frontend
+        docker build -t ${{ env.FRONTEND_IMAGE }}:${{ steps.commit.outputs.COMMIT_HASH }} .
+        docker build -t ${{ env.FRONTEND_IMAGE }}:latest .
+        echo "✅ Frontend image built successfully"
+
+    - name: Push images to Docker Hub
+      run: |
+        echo "🔹 Pushing backend image..."
+        docker push ${{ env.BACKEND_IMAGE }}:${{ steps.commit.outputs.COMMIT_HASH }}
+        docker push ${{ env.BACKEND_IMAGE }}:latest
+        
+        echo "🔹 Pushing frontend image..."
+        docker push ${{ env.FRONTEND_IMAGE }}:${{ steps.commit.outputs.COMMIT_HASH }}
+        docker push ${{ env.FRONTEND_IMAGE }}:latest
+        
+        echo "✅ All images pushed successfully!"
+
+    - name: Update values.yaml
+      run: |
+        echo "🔹 Updating values.yaml with new image tags..."
+        
+        # Backend ve Frontend image tag'lerini güncelle
+        sed -i "s|tag: \".*\"|tag: \"${{ steps.commit.outputs.COMMIT_HASH }}\"|g" helm-chart/values.yaml
+        
+        echo "🔹 Updated values.yaml:"
+        cat helm-chart/values.yaml | grep -A 3 -B 1 "tag:"
+
+    - name: Commit and push values.yaml
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        git add helm-chart/values.yaml
+        
+        if git diff --staged --quiet; then
+          echo "🔸 No changes to commit"
+        else
+          git commit -m "🚀 Update image tags to ${{ steps.commit.outputs.COMMIT_HASH }}
+
+          Auto-updated by Simple Deploy workflow
+          
+          Images:
+          - Backend: ${{ env.BACKEND_IMAGE }}:${{ steps.commit.outputs.COMMIT_HASH }}
+          - Frontend: ${{ env.FRONTEND_IMAGE }}:${{ steps.commit.outputs.COMMIT_HASH }}"
+          
+          git push origin main
+          echo "✅ values.yaml updated and pushed!"
+        fi
+
+    - name: Deploy Summary
+      run: |
+        echo "## 🎉 Simple Deploy Completed" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📦 Images Built & Pushed:" >> $GITHUB_STEP_SUMMARY
+        echo "- **Backend**: \`${{ env.BACKEND_IMAGE }}:${{ steps.commit.outputs.COMMIT_HASH }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **Frontend**: \`${{ env.FRONTEND_IMAGE }}:${{ steps.commit.outputs.COMMIT_HASH }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🎯 GitOps:" >> $GITHUB_STEP_SUMMARY
+        echo "- **values.yaml** updated with new image tags" >> $GITHUB_STEP_SUMMARY
+        echo "- **Commit Hash**: \`${{ steps.commit.outputs.COMMIT_HASH }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🔗 Docker Hub:" >> $GITHUB_STEP_SUMMARY
+        echo "- [Backend Images](https://hub.docker.com/r/${{ env.DOCKER_USERNAME }}/task-tracker-backend)" >> $GITHUB_STEP_SUMMARY
+        echo "- [Frontend Images](https://hub.docker.com/r/${{ env.DOCKER_USERNAME }}/task-tracker-frontend)" >> $GITHUB_STEP_SUMMARY
+
+    - name: Test deployment
+      run: |
+        echo "🔹 Testing if images can be pulled..."
+        docker pull ${{ env.BACKEND_IMAGE }}:${{ steps.commit.outputs.COMMIT_HASH }}
+        docker pull ${{ env.FRONTEND_IMAGE }}:${{ steps.commit.outputs.COMMIT_HASH }}
+        echo "✅ Images can be pulled successfully!"
