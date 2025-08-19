@@ -1,10 +1,12 @@
-name: Build and Push Docker Images
+name: Build and Push Docker Images (Legacy)
 
+# Bu workflow devre dışı - GitOps için update-values.yml kullanılıyor
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:  # Sadece manuel çalıştırma
+  # push:
+  #   branches: [ main, develop ]
+  # pull_request:
+  #   branches: [ main ]
 
 env:
   DOCKER_USER: bakiakgun
@@ -64,7 +66,7 @@ jobs:
         echo "\`\`\`powershell" >> $GITHUB_STEP_SUMMARY
         echo "\$env:COMMIT_HASH = \"${{ steps.commit.outputs.hash }}\"" >> $GITHUB_STEP_SUMMARY
         echo "cd task-tracker-devops" >> $GITHUB_STEP_SUMMARY
-        echo "docker-compose -f docker-compose.template.yml up -d" >> $GITHUB_STEP_SUMMARY
+        echo "docker compose -f docker-compose.template.yml up -d" >> $GITHUB_STEP_SUMMARY
         echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
         
     - name: Save deployment info

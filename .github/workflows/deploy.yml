@@ -1,16 +1,17 @@
-name: Deploy to Production
+name: Deploy to Production (Legacy)
 
+# Bu workflow devre dışı - GitOps + ArgoCD kullanıyoruz
 on:
-  workflow_run:
-    workflows: ["Build and Push Docker Images"]
-    types:
-      - completed
-  workflow_dispatch:
+  workflow_dispatch:  # Sadece manuel çalıştırma
     inputs:
       commit_hash:
         description: 'Commit hash to deploy'
         required: true
         default: 'latest'
+  # workflow_run:
+  #   workflows: ["Build and Push Docker Images"]
+  #   types:
+  #     - completed
 
 env:
   DOCKER_USER: bakiakgun
@@ -59,10 +60,10 @@ jobs:
         export COMMIT_HASH=${{ steps.commit.outputs.hash }}
         
         # Stop existing containers
-        docker-compose -f docker-compose.template.yml down || true
+        docker compose -f docker-compose.template.yml down || true
         
         # Start new containers
-        docker-compose -f docker-compose.template.yml up -d
+        docker compose -f docker-compose.template.yml up -d
         
         # Wait for services to be ready
         sleep 30
@@ -70,7 +71,7 @@ jobs:
         # Health check
         echo "Performing health checks..."
         curl -f http://localhost:8000/health || echo "Backend health check failed"
-        curl -f http://localhost:3000 || echo "Frontend health check failed"
+        curl -f http://localhost:3001 || echo "Frontend health check failed"
         
     - name: Deployment summary
       run: |
@@ -81,7 +82,7 @@ jobs:
         echo "- **Frontend:** \`${{ env.DOCKER_USER }}/task-tracker-frontend:${{ steps.commit.outputs.hash }}\`" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 🌐 Access URLs:" >> $GITHUB_STEP_SUMMARY
-        echo "- Frontend: http://localhost:3000" >> $GITHUB_STEP_SUMMARY
+        echo "- Frontend: http://localhost:3001" >> $GITHUB_STEP_SUMMARY
         echo "- Backend API: http://localhost:8000" >> $GITHUB_STEP_SUMMARY
         echo "- API Docs: http://localhost:8000/docs" >> $GITHUB_STEP_SUMMARY
         
