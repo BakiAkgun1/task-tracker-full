@@ -1,0 +1,5 @@
+[33ma9d8caf7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m ArgoCD GitOps entegrasyonu tamamlandı - Kullanıcı: admin, Şifre: sO2HOgp5qkZpHYbW
+[33mac1e2885[m  Add simple deploy workflow - Fix Docker Hub connection issues
+[33mdae7d85b[m  Test GitHub Actions secrets
+[33mbbbe1e51[m  Fix GitHub Actions deployment issues
+[33m8c82cfd9[m  Complete GitOps setup with Helm charts and values.yaml automation
