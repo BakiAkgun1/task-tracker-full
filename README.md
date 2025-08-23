@@ -1,155 +1,117 @@
-# 🚀 Task Tracker v2.0 - Modern Görev Yönetim Sistemi
+# 🚀 Task Tracker - GitOps ile Kubernetes Deployment
 
-Modern, ölçeklenebilir ve Docker tabanlı görev yönetim uygulaması. FastAPI backend ve React frontend ile geliştirilmiş, GitHub Actions ile otomatik CI/CD pipeline'a sahip.
+Modern bir task tracking uygulaması, GitOps prensipleri ile Kubernetes'te çalışır.
 
-## 📋 İçindekiler
+## 🎯 Özellikler
 
-- [Özellikler](#-özellikler)
-- [Teknolojiler](#-teknolojiler)
-- [Hızlı Başlangıç](#-hızlı-başlangıç)
-- [Proje Yapısı](#-proje-yapısı)
-- [Deployment](#-deployment)
-- [API Dokümantasyonu](#-api-dokümantasyonu)
-- [Geliştirme](#-geliştirme)
-- [CI/CD Pipeline](#-cicd-pipeline)
-- [Katkıda Bulunma](#-katkıda-bulunma)
+- ✅ **React Frontend** - Modern UI/UX
+- ✅ **FastAPI Backend** - RESTful API
+- ✅ **Docker Containerization** - Kolay deployment
+- ✅ **Kubernetes Deployment** - Production ready
+- ✅ **ArgoCD GitOps** - Otomatik deployment
+- ✅ **GitHub Actions CI/CD** - Otomatik build & deploy
+- ✅ **Helm Charts** - Kubernetes manifest yönetimi
 
-## ✨ Özellikler
+## 🏗️ Mimari
 
-### 🎯 Core Özellikler
-- ✅ **CRUD İşlemleri**: Görev oluşturma, okuma, güncelleme, silme
-- ✅ **Öncelik Seviyeleri**: Düşük, Orta, Yüksek, Acil
-- ✅ **Kategoriler**: İş, Kişisel, Alışveriş, Sağlık, Eğitim, Diğer
-- ✅ **Bitiş Tarihi**: Görevler için son tarih belirleme
-- ✅ **Durum Takibi**: Tamamlandı/Bekliyor durumları
-- ✅ **Arama ve Filtreleme**: Gelişmiş filtreleme sistemi
-
-### 🎨 Frontend Özellikleri
-- ✅ **Modern UI/UX**: Responsive ve kullanıcı dostu tasarım
-- ✅ **İstatistik Dashboard**: Görev durumu özetleri
-- ✅ **Real-time Bildirimler**: Toast mesajları
-- ✅ **Modal Düzenleme**: Inline görev düzenleme
-- ✅ **Tarih Seçici**: Kolay tarih belirleme
-- ✅ **Mobil Uyumlu**: Tüm cihazlarda çalışır
-
-### 🔧 Backend Özellikleri
-- ✅ **RESTful API**: OpenAPI/Swagger dokümantasyonu
-- ✅ **Veri Validasyonu**: Pydantic ile güvenli veri işleme
-- ✅ **Hata Yönetimi**: Kapsamlı error handling
-- ✅ **Logging**: Detaylı sistem logları
-- ✅ **Health Check**: Sistem durumu kontrolü
-- ✅ **CORS Desteği**: Cross-origin istekleri
-
-### 🚀 DevOps Özellikleri
-- ✅ **Docker Containerization**: Multi-stage build
-- ✅ **GitHub Actions CI/CD**: Otomatik deployment
-- ✅ **Commit Hash Versioning**: Eşsiz versiyon kontrolü
-- ✅ **Health Monitoring**: Container durumu izleme
-- ✅ **Environment Management**: Çoklu ortam desteği
-
-## 🛠 Teknolojiler
-
-### Backend
-- **FastAPI** - Modern, hızlı Python web framework
-- **SQLAlchemy** - ORM ve veritabanı yönetimi
-- **Pydantic** - Veri validasyonu ve serialization
-- **Uvicorn** - ASGI server
-- **SQLite** - Hafif veritabanı çözümü
-
-### Frontend
-- **React 18** - Modern UI library
-- **Axios** - HTTP client
-- **React Icons** - Icon kütüphanesi
-- **React DatePicker** - Tarih seçici
-- **React Toastify** - Bildirim sistemi
-- **CSS3** - Modern styling
-
-### DevOps
-- **Docker** - Containerization
-- **Docker Compose** - Multi-container orchestration
-- **GitHub Actions** - CI/CD pipeline
-- **Nginx** - Web server (production)
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   GitHub Repo   │───▶│  GitHub Actions │───▶│   Docker Hub    │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         ▼                       ▼                       ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   ArgoCD GitOps │◀───│  Kubernetes     │◀───│   Helm Charts   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
 
 ## 🚀 Hızlı Başlangıç
 
-### Önkoşullar
-- Docker ve Docker Compose
-- Git
-- PowerShell (Windows) veya Bash (Linux/Mac)
+### 1. Prerequisites
+- Docker Desktop (Kubernetes aktif)
+- kubectl CLI
+- PowerShell (Windows)
 
-### 1. Repository'yi Klonlayın
-```bash
-git clone https://github.com/yourusername/task-tracker.git
-cd task-tracker
-```
-
-### 2. Tek Komutla Çalıştırın
+### 2. ArgoCD Kurulumu
 ```powershell
-# PowerShell (Windows)
-.\deploy.ps1
+# Hızlı kurulum
+.\quick-setup.ps1
 
-# Bash (Linux/Mac)
-./build-images.sh
+# Veya manuel kurulum
+.\argocd-install.ps1
 ```
 
-### 3. Erişim
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8000
-- **API Docs**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
+### 3. GitHub Secrets Ekleme
+1. [GitHub Repository](https://github.com/BakiAkgun1/task-tracker-full) Settings > Secrets
+2. Şu secret'ları ekleyin:
+   - `DOCKER_USERNAME`: Docker Hub kullanıcı adı
+   - `DOCKER_PASSWORD`: Docker Hub şifresi
+   - `ARGOCD_SERVER`: ArgoCD server IP (opsiyonel)
+   - `ARGOCD_PASSWORD`: `sO2HOgp5qkZpHYbW` (opsiyonel)
+
+### 4. GitOps Test
+```powershell
+# Herhangi bir dosyayı değiştir ve push yap
+git add .
+git commit -m "Test GitOps workflow"
+git push origin main
+```
 
 ## 📁 Proje Yapısı
 
 ```
 task-tracker/
-├── 📁 task-tracker-backend/          # FastAPI Backend
-│   ├── 📁 app/
-│   │   ├── main.py                   # Ana uygulama
-│   │   ├── models.py                 # Veritabanı modelleri
-│   │   ├── schemas.py                # Pydantic şemaları
-│   │   └── database.py               # Veritabanı yapılandırması
-│   ├── Dockerfile                    # Backend container
-│   ├── requirements.txt              # Python bağımlılıkları
-│   └── README.md                     # Backend dokümantasyonu
-├── 📁 task-tracker-frontend/         # React Frontend
-│   ├── 📁 src/
-│   │   ├── 📁 components/            # React bileşenleri
-│   │   ├── App.js                    # Ana uygulama
-│   │   └── index.css                 # Stil dosyaları
-│   ├── Dockerfile                    # Frontend container
-│   ├── package.json                  # Node.js bağımlılıkları
-│   └── README.md                     # Frontend dokümantasyonu
-├── 📁 task-tracker-devops/           # DevOps yapılandırması
-│   ├── docker-compose.template.yml   # Container orchestration
-│   └── README.md                     # DevOps dokümantasyonu
-├── 📁 .github/workflows/             # CI/CD pipeline
-│   ├── build-and-push.yml           # Build ve push workflow
-│   └── deploy.yml                    # Deployment workflow
-├── 📄 deploy.ps1                     # Ana deployment script
-├── 📄 build-images.ps1               # Build script
-├── 📄 DEPLOYMENT_GUIDE.md            # Detaylı deployment kılavuzu
-└── 📄 README.md                      # Bu dosya
+├── 📁 task-tracker-backend/     # FastAPI Backend
+│   ├── app/
+│   │   ├── main.py             # Ana uygulama
+│   │   ├── models.py           # Veritabanı modelleri
+│   │   ├── schemas.py          # Pydantic şemaları
+│   │   └── database.py         # Veritabanı yapılandırması
+│   ├── Dockerfile              # Backend container
+│   ├── requirements.txt        # Python bağımlılıkları
+│   └── README.md               # Backend dokümantasyonu
+├── 📁 task-tracker-frontend/   # React Frontend
+│   ├── src/
+│   │   ├── components/         # React bileşenleri
+│   │   ├── App.js             # Ana uygulama
+│   │   └── index.css          # Stil dosyaları
+│   ├── Dockerfile             # Frontend container
+│   ├── package.json           # Node.js bağımlılıkları
+│   └── README.md              # Frontend dokümantasyonu
+├── 📁 helm-chart/             # Kubernetes Helm Chart
+│   ├── templates/             # Kubernetes manifest'leri
+│   ├── values.yaml            # Konfigürasyon
+│   └── Chart.yaml             # Chart metadata
+├── 📁 argocd-apps/            # ArgoCD Application'ları
+│   ├── task-tracker-dev.yaml  # Development environment
+│   └── task-tracker-prod.yaml # Production environment
+├── 📁 .github/workflows/      # CI/CD Pipeline
+│   ├── gitops-update.yml      # GitOps workflow
+│   └── build-and-push.yml     # Build workflow
+├── 📄 argocd-install.ps1      # ArgoCD kurulum script'i
+├── 📄 quick-setup.ps1         # Hızlı kurulum script'i
+├── 📄 GITHUB-SECRETS-SETUP.md # GitHub Secrets rehberi
+└── 📄 README.md               # Bu dosya
 ```
 
 ## 🔧 Deployment
 
+### ArgoCD ile Otomatik Deployment
+1. **ArgoCD UI'ye erişim**: `http://ARGOCD_IP`
+2. **Kullanıcı**: `admin`
+3. **Şifre**: `sO2HOgp5qkZpHYbW`
+4. **Application'lar**:
+   - `task-tracker-dev`: Development environment
+   - `task-tracker-prod`: Production environment
+
 ### Manuel Deployment
 ```powershell
-# Commit hash ile
-$COMMIT_HASH = git rev-parse --short HEAD
-.\deploy.ps1 -CommitHash $COMMIT_HASH
+# Development
+kubectl apply -f argocd-apps/task-tracker-dev.yaml
 
-# Sadece build
-.\deploy.ps1 -BuildOnly
-
-# Sadece deploy
-.\deploy.ps1 -DeployOnly
+# Production
+kubectl apply -f argocd-apps/task-tracker-prod.yaml
 ```
-
-### GitHub Actions ile Otomatik Deployment
-1. GitHub Secrets'e `DOCKER_PASSWORD` ekleyin
-2. `main` branch'e push yapın
-3. Actions sekmesinde ilerlemeyi izleyin
 
 ## 📚 API Dokümantasyonu
 
@@ -172,160 +134,82 @@ $COMMIT_HASH = git rev-parse --short HEAD
 - `skip`: Pagination offset
 - `limit`: Maksimum sonuç sayısı
 
-### Örnek API Kullanımı
-```javascript
-// Yeni görev oluştur
-const task = await fetch('/tasks/', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    title: 'Yeni Görev',
-    description: 'Görev açıklaması',
-    priority: 'high',
-    category: 'work',
-    due_date: '2024-12-31T23:59:59'
-  })
-});
+## 🔄 GitOps Workflow
 
-// Görevleri filtrele
-const tasks = await fetch('/tasks/?priority=high&completed=false');
-```
-
-## 🔨 Geliştirme
-
-### Backend Geliştirme
+### 1. Code Push
 ```bash
-cd task-tracker-backend
-pip install -r requirements.txt
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+git add .
+git commit -m "Yeni özellik eklendi"
+git push origin main
 ```
 
-### Frontend Geliştirme
-```bash
-cd task-tracker-frontend
-npm install
-npm start
-```
+### 2. GitHub Actions
+- Docker image'ları build edilir
+- Docker Hub'a push edilir
+- Helm chart values.yaml güncellenir
+- Git'e commit edilir
 
-### Veritabanı Şeması
-```sql
-CREATE TABLE tasks (
-    id INTEGER PRIMARY KEY,
-    title VARCHAR(200) NOT NULL,
-    description VARCHAR(1000),
-    completed BOOLEAN DEFAULT FALSE,
-    priority ENUM('low', 'medium', 'high', 'urgent') DEFAULT 'medium',
-    category ENUM('work', 'personal', 'shopping', 'health', 'education', 'other') DEFAULT 'other',
-    due_date DATETIME,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-## 🔄 CI/CD Pipeline
-
-### Build Workflow (`build-and-push.yml`)
-1. **Checkout**: Kodu çek
-2. **Hash**: Commit hash'i al
-3. **Build**: Docker imajları build et
-4. **Push**: Docker Hub'a push et
-5. **Artifact**: Deployment bilgilerini sakla
-
-### Deploy Workflow (`deploy.yml`)
-1. **Verify**: İmajların varlığını kontrol et
-2. **Deploy**: Docker Compose ile deploy et
-3. **Health Check**: Servislerin durumunu kontrol et
-4. **Report**: Deployment raporu oluştur
-
-### Versiyonlama Stratejisi
-- Her commit için eşsiz hash (örn: `a1b2c3d`)
-- Latest tag kullanılmaz
-- Rollback için eski hash'ler kullanılabilir
-
-## 🌐 Production Deployment
-
-### Gereksinimler
-- Docker ve Docker Compose
-- En az 2GB RAM
-- 10GB disk alanı
-
-### Güvenlik
-- CORS ayarları production için kısıtlanmış
-- Environment variables ile yapılandırma
-- Health check endpoint'leri
-
-### Monitoring
-```bash
-# Container durumu
-docker ps
-
-# Logları izle
-docker logs -f task-tracker-backend
-docker logs -f task-tracker-frontend
-
-# Sistem kaynakları
-docker stats
-```
+### 3. ArgoCD Sync
+- ArgoCD değişiklikleri algılar
+- Kubernetes cluster'ı günceller
+- Pod'ları yeniden başlatır
 
 ## 🐛 Sorun Giderme
 
-### Yaygın Sorunlar
-
-#### Container Restart Ediyor
-```bash
-# Logları kontrol et
-docker logs task-tracker-backend
-docker logs task-tracker-frontend
-
-# Port çakışması
-docker-compose down
-docker-compose up -d
+### ArgoCD Pod'ları Çalışmıyorsa
+```powershell
+kubectl describe pods -n argocd
+kubectl logs -f deployment/argocd-server -n argocd
 ```
 
-#### API Erişim Sorunu
-```bash
-# Backend health check
-curl http://localhost:8000/health
-
-# CORS ayarlarını kontrol et
-# main.py dosyasında allow_origins kısmını incele
+### Application Sync Hatası
+```powershell
+.\argocd.exe app get task-tracker-dev
+kubectl describe application task-tracker-dev -n argocd
 ```
 
-#### Frontend Build Hatası
-```bash
-# Dependencies'i yeniden yükle
-cd task-tracker-frontend
-rm -rf node_modules package-lock.json
-npm install
+### Image Pull Hatası
+- Docker Hub credentials kontrolü
+- Image tag'lerin doğru olup olmadığını kontrol et
+- Network bağlantısını kontrol et
+
+## 📈 Monitoring
+
+### ArgoCD Application Durumu
+```powershell
+.\argocd.exe app list
+.\argocd.exe app get task-tracker-dev
 ```
 
-## 📈 Performans
+### Kubernetes Durumu
+```powershell
+kubectl get all -n task-tracker-dev
+kubectl logs -f deployment/task-tracker-backend -n task-tracker-dev
+```
 
-### Backend
-- SQLAlchemy ORM ile optimize edilmiş sorgular
-- Pagination desteği
-- Connection pooling
-- Async/await desteği
+### Manuel Sync (Gerekirse)
+```powershell
+.\argocd.exe app sync task-tracker-dev
+```
 
-### Frontend
-- React 18 ile otomatik batching
-- Lazy loading
-- Optimized re-renders
-- Gzip compression (production)
+## 🎯 Öğrenme Noktaları
 
-## 🔒 Güvenlik
+### GitOps Prensipleri
+- **Declarative**: Git'te desired state tanımı
+- **Versioned**: Tüm değişiklikler Git history'de
+- **Immutable**: Infrastructure as Code
+- **Pull-based**: ArgoCD cluster'dan pull yapar
 
-### Backend Güvenlik
-- Input validation (Pydantic)
-- SQL injection koruması (SQLAlchemy ORM)
-- CORS yapılandırması
-- Error handling (sensitive data gizleme)
+### ArgoCD Kavramları
+- **Application**: Deploy edilecek uygulamanın tanımı
+- **Project**: Application'ları gruplandırma
+- **Repository**: Git repo bağlantısı
+- **Sync**: Git ile cluster arasında senkronizasyon
 
-### Frontend Güvenlik
-- XSS koruması
-- CSRF token desteği hazır
-- Secure headers (Nginx)
-- Environment variables
+### Helm Kavramları
+- **Chart**: Kubernetes manifest template'leri
+- **Values**: Konfigürasyon parametreleri
+- **Templates**: Go template syntax ile parametrik manifest'ler
 
 ## 🤝 Katkıda Bulunma
 
@@ -342,35 +226,16 @@ npm install
 
 ## 📄 Lisans
 
-Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için `LICENSE` dosyasına bakın.
+Bu proje MIT lisansı altında lisanslanmıştır.
 
 ## 👥 Katkıda Bulunanlar
 
-- **Baki Akgun** - Initial work - [@BakiAkgun1](https://github.com/BakiAkgun1)
+- **Baki Akgün** - Initial work - [@BakiAkgun1](https://github.com/BakiAkgun1)
 
 ## 📞 İletişim
 
-Proje Linki: [https://github.com/BakiAkgun1/task-tracker](https://github.com/BakiAkgun1/task-tracker)
-
----
-
-## 🔥 Son Güncellemeler
-
-### v2.0.0 (2024-12-19)
-- ✅ Modern React frontend
-- ✅ Gelişmiş FastAPI backend
-- ✅ Docker containerization
-- ✅ GitHub Actions CI/CD
-- ✅ Commit hash versioning
-- ✅ Kapsamlı dokümantasyon
-
-### v1.0.0 (2024-12-18)
-- ✅ İlk versiyon
-- ✅ Temel CRUD işlemleri
-- ✅ Basit UI
+Proje Linki: [https://github.com/BakiAkgun1/task-tracker-full](https://github.com/BakiAkgun1/task-tracker-full)
 
 ---
 
 **⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!**
-#   G i t H u b   A c t i o n s   S e c r e t   T e s t  
- 

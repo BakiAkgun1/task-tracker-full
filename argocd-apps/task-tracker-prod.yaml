@@ -5,16 +5,47 @@ metadata:
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
+  labels:
+    app: task-tracker
+    environment: prod
+    managed-by: argocd
 spec:
   project: default
   source:
     repoURL: https://github.com/BakiAkgun1/task-tracker-full.git
-    targetRevision: main
-    path: k8s/overlays/prod
+    targetRevision: HEAD
+    path: helm-chart
+    helm:
+      valueFiles:
+        - values.yaml
+      values: |
+        namespace: task-tracker-prod
+        replicaCount:
+          backend: 2
+          frontend: 2
+        resources:
+          backend:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          frontend:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
   destination:
     server: https://kubernetes.default.svc
     namespace: task-tracker-prod
   syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
     syncOptions:
     - CreateNamespace=true
     - PrunePropagationPolicy=foreground
@@ -25,4 +56,4 @@ spec:
         duration: 5s
         factor: 2
         maxDuration: 3m
-  revisionHistoryLimit: 10
+  revisionHistoryLimit: 3
