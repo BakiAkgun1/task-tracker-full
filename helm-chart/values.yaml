@@ -4,11 +4,11 @@
 images:
   backend:
     repository: bakiakgun/task-tracker-backend
-    tag: "982e5a71"  # Bu tag GitHub Actions tarafından güncellenecek
+    tag: "e2d78f05"  # Bu tag GitHub Actions tarafından güncellenecek
     pullPolicy: IfNotPresent
   frontend:
     repository: bakiakgun/task-tracker-frontend
-    tag: "982e5a71"  # Bu tag GitHub Actions tarafından güncellenecek
+    tag: "e2d78f05"  # Bu tag GitHub Actions tarafından güncellenecek
     pullPolicy: IfNotPresent
 
 # Replica configurations
