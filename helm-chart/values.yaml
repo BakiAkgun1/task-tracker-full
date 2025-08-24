@@ -13,8 +13,8 @@ images:
 
 # Replica configurations
 replicaCount:
-  backend: 2
-  frontend: 2
+  backend: 1
+  frontend: 1
 
 # Service configurations
 service:
@@ -31,24 +31,24 @@ service:
 resources:
   backend:
     requests:
-      memory: "256Mi"
-      cpu: "250m"
+      memory: "128Mi"
+      cpu: "100m"
     limits:
-      memory: "512Mi"
-      cpu: "500m"
+      memory: "256Mi"
+      cpu: "200m"
   frontend:
     requests:
-      memory: "256Mi"
-      cpu: "250m"
+      memory: "128Mi"
+      cpu: "100m"
     limits:
-      memory: "512Mi"
-      cpu: "500m"
+      memory: "256Mi"
+      cpu: "200m"
 
 # Environment variables
 env:
   backend:
     PYTHONPATH: "/app"
-    ENVIRONMENT: "production"
+    ENVIRONMENT: "development"
   frontend:
     REACT_APP_API_URL: "http://task-tracker-backend-service:8000"
 
@@ -65,29 +65,8 @@ healthCheck:
     initialDelaySeconds: 30
     periodSeconds: 10
 
-# Ingress configuration
-ingress:
-  enabled: true
-  className: "nginx"
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
-  hosts:
-    - host: task-tracker.local
-      paths:
-        - path: /api
-          pathType: Prefix
-          service: backend
-        - path: /
-          pathType: Prefix
-          service: frontend
-  tls:
-    - secretName: task-tracker-tls
-      hosts:
-        - task-tracker.local
-
-# Namespace
-namespace: task-tracker
+# Namespace (ArgoCD tarafından override edilecek)
+namespace: task-tracker-dev
 
 # Labels
 labels:

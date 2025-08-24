@@ -10,7 +10,7 @@ Bu kılavuz Task Tracker uygulamasını GitOps metodolojisi ile ArgoCD kullanara
 - GitHub repository access
 
 ## 🛠 1. ArgoCD Kurulumu
-
+h
 ### Linux/macOS:
 ```bash
 chmod +x argocd-install.sh

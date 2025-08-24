@@ -238,4 +238,7 @@ Proje Linki: [https://github.com/BakiAkgun1/task-tracker-full](https://github.co
 
 ---
 
-**⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!**
+**⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!**# Test GitOps
+# GitOps Test
+#   G i t O p s   T e s t  
+ 
