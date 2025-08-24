@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: task-tracker-frontend
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: task-tracker-frontend
+  ports:
+  - port: 3000
+    targetPort: 3000
+  type: LoadBalancer
