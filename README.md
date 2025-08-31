@@ -192,26 +192,11 @@ kubectl logs -f deployment/task-tracker-backend -n task-tracker-dev
 .\argocd.exe app sync task-tracker-dev
 ```
 
-## 🎯 Öğrenme Noktaları
-
-* **GitOps:** Declarative, Versioned, Immutable, Pull-based
-* **ArgoCD:** Application, Project, Repository, Sync
-* **Helm:** Chart, Values, Templates
-
 
 
 ## 📄 Lisans
 
 MIT Lisansı
 
-## 👥 Katkıda Bulunanlar
 
-* **Baki Akgün** - Initial work - [@BakiAkgun1](https://github.com/BakiAkgun1)
-
-## 📞 İletişim
-
-[GitHub Repo](https://github.com/BakiAkgun1/task-tracker-full)
-
-
-İstersen ben bunu **Markdown olarak doğrudan commit edilebilecek temiz bir dosya** hâline de getirebilirim. Bunu yapmamı ister misin?
 
