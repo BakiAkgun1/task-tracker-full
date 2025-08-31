@@ -25,7 +25,7 @@ Modern bir task tracking uygulaması, GitOps prensipleri ile Kubernetes'te çal�
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
-## 🚀 Hızlı Başlangıç
+##  Hızlı Başlangıç
 
 ### 1. Prerequisites
 - Docker Desktop (Kubernetes aktif)
@@ -240,7 +240,9 @@ Proje Linki: [https://github.com/BakiAkgun1/task-tracker-full](https://github.co
 
 **⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!**# Test GitOps
 # GitOps Test
-#   G i t O p s   T e s t  
+#   G i t O p s   T e s t 
+ 
  # GitOps Test - Sun Aug 24 22:45:28 +03 2025
-#   G i t O p s   T e s t   -   0 8 / 2 4 / 2 0 2 5   2 2 : 4 8 : 4 1  
+#   G i t O p s   T e s t   -   0 8 / 2 4 / 2 0 2 5   2 2 : 4 8 : 4 1 
+ 
  
