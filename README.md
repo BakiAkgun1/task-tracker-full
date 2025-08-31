@@ -1,7 +1,3 @@
-Tamam! Senin verdiğin uzun README içeriğini, hem gereksiz test satırlarını kaldırarak hem de daha temiz, tutarlı ve anlaşılır hâle getirerek güncelledim:
-
----
-
 # 🚀 Task Tracker - GitOps ile Kubernetes Deployment
 
 Modern bir task tracking uygulaması, GitOps prensipleri ile Kubernetes'te çalışır.
@@ -218,3 +214,4 @@ MIT Lisansı
 
 
 İstersen ben bunu **Markdown olarak doğrudan commit edilebilecek temiz bir dosya** hâline de getirebilirim. Bunu yapmamı ister misin?
+
